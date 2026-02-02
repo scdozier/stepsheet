@@ -39,7 +39,7 @@ const Checklist: React.FC<ChecklistProps> = ({ data, onToggleItem, onSelectItem 
             justifyContent: 'center',
             height: '100%',
             color: theme.colors.textMuted,
-            fontSize: 14,
+            fontSize: '0.875em',
             transition: 'color 0.3s',
           }}
         >

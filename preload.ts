@@ -14,6 +14,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   // Window operations
   hideWindow: () => ipcRenderer.send('window:hide'),
+  closeWindow: () => ipcRenderer.send('window:close'),
   showWindow: () => ipcRenderer.send('window:show'),
 
   // Click-through toggle (for overlay mode)
@@ -69,6 +70,7 @@ declare global {
       loadState: () => Promise<AppStateData>;
       resetState: () => Promise<AppStateData>;
       hideWindow: () => void;
+      closeWindow: () => void;
       showWindow: () => void;
       setClickThrough: (enable: boolean) => void;
       getClickThrough: () => Promise<boolean>;

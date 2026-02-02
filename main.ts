@@ -75,7 +75,8 @@ function createWindow(): void {
     },
     // Overlay configuration
     transparent: true,
-    frame: false,
+    titleBarStyle: 'hiddenInset',
+    trafficLightPosition: { x: 12, y: 12 },
     alwaysOnTop: true,
     resizable: true,
     hasShadow: false,
@@ -202,7 +203,13 @@ ipcMain.handle('window:getClickThrough', () => {
 });
 
 // IPC handlers for window visibility
-ipcMain.on('window:hide', () => {
+ipcMain.on('window:close', () => {
+    if (mainWindow) {
+      mainWindow.close();
+    }
+  });
+
+  ipcMain.on('window:hide', () => {
   mainWindow?.hide();
 });
 

@@ -491,19 +491,46 @@ const App: React.FC = () => {
           transition: 'background-color 0.3s, border-color 0.3s',
         }}
       >
-        <h1 style={{
-          fontSize: '14px',
-          fontWeight: 600,
-          margin: 0,
-          color: theme.colors.textPrimary,
-          transition: 'color 0.3s',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-          maxWidth: '60%',
-        }}>
-          {displayTitle}
-        </h1>
+        {/* Left side: Close button + Title */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', overflow: 'hidden', flex: 1 }}>
+          {/* Close button (red traffic light) */}
+          <button
+            onClick={() => window.electronAPI.closeWindow()}
+            style={{
+              // @ts-expect-error - WebkitAppRegion is a valid CSS property for Electron
+              WebkitAppRegion: 'no-drag',
+              width: '12px',
+              height: '12px',
+              borderRadius: '50%',
+              backgroundColor: '#ff5f57',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 0,
+              flexShrink: 0,
+              transition: 'background-color 0.15s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#e0443e';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#ff5f57';
+            }}
+            title="Close window"
+            aria-label="Close window"
+          />
+          <h1 style={{
+            fontSize: '0.875em',
+            fontWeight: 600,
+            margin: 0,
+            color: theme.colors.textPrimary,
+            transition: 'color 0.3s',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}>
+            {displayTitle}
+          </h1>
+        </div>
 
         {/* Header buttons - must be no-drag */}
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center', position: 'relative' }}>
@@ -514,7 +541,7 @@ const App: React.FC = () => {
               // @ts-expect-error - WebkitAppRegion is a valid CSS property for Electron
               WebkitAppRegion: 'no-drag',
               padding: '4px 8px',
-              fontSize: '11px',
+              fontSize: '0.6875em',
               backgroundColor: showSettings ? theme.colors.activeBg : theme.colors.buttonBg,
               color: theme.colors.textPrimary,
               border: 'none',
@@ -534,7 +561,7 @@ const App: React.FC = () => {
               // @ts-expect-error - WebkitAppRegion is a valid CSS property for Electron
               WebkitAppRegion: 'no-drag',
               padding: '4px 8px',
-              fontSize: '11px',
+              fontSize: '0.6875em',
               backgroundColor: theme.colors.buttonBg,
               color: theme.colors.textPrimary,
               border: 'none',
@@ -572,7 +599,7 @@ const App: React.FC = () => {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
-                  fontSize: '12px',
+                  fontSize: '0.75em',
                   color: theme.colors.textPrimary,
                   cursor: 'pointer',
                   padding: '4px',
@@ -587,6 +614,86 @@ const App: React.FC = () => {
                 Highlight current step
               </label>
 
+              {/* Text Size Setting */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '4px',
+                  marginTop: '8px',
+                }}
+              >
+                <span style={{
+                  fontSize: '0.75em',
+                  color: theme.colors.textPrimary,
+                }}>
+                  Text Size
+                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <button
+                    onClick={decreaseTextScale}
+                    disabled={settings.textScale <= TEXT_SCALE_MIN}
+                    style={{
+                      width: '24px',
+                      height: '24px',
+                      padding: 0,
+                      fontSize: '0.875em',
+                      fontWeight: 'bold',
+                      backgroundColor: settings.textScale <= TEXT_SCALE_MIN
+                        ? theme.colors.borderLight
+                        : theme.colors.buttonBg,
+                      color: settings.textScale <= TEXT_SCALE_MIN
+                        ? theme.colors.textMuted
+                        : theme.colors.textPrimary,
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: settings.textScale <= TEXT_SCALE_MIN ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                    title="Decrease text size"
+                  >
+                    −
+                  </button>
+                  <span style={{
+                    fontSize: '0.6875em',
+                    color: theme.colors.textPrimary,
+                    minWidth: '36px',
+                    textAlign: 'center',
+                  }}>
+                    {Math.round(settings.textScale * 100)}%
+                  </span>
+                  <button
+                    onClick={increaseTextScale}
+                    disabled={settings.textScale >= TEXT_SCALE_MAX}
+                    style={{
+                      width: '24px',
+                      height: '24px',
+                      padding: 0,
+                      fontSize: '0.875em',
+                      fontWeight: 'bold',
+                      backgroundColor: settings.textScale >= TEXT_SCALE_MAX
+                        ? theme.colors.borderLight
+                        : theme.colors.buttonBg,
+                      color: settings.textScale >= TEXT_SCALE_MAX
+                        ? theme.colors.textMuted
+                        : theme.colors.textPrimary,
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: settings.textScale >= TEXT_SCALE_MAX ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                    title="Increase text size"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
               {/* File Library Section */}
               <div style={{
                 marginTop: '12px',
@@ -600,7 +707,7 @@ const App: React.FC = () => {
                   marginBottom: '8px',
                 }}>
                   <span style={{
-                    fontSize: '11px',
+                    fontSize: '0.6875em',
                     fontWeight: 600,
                     color: theme.colors.textMuted,
                     textTransform: 'uppercase',
@@ -612,7 +719,7 @@ const App: React.FC = () => {
                     onClick={addFileToLibrary}
                     style={{
                       padding: '2px 6px',
-                      fontSize: '10px',
+                      fontSize: '0.625em',
                       backgroundColor: theme.colors.accent,
                       color: '#ffffff',
                       border: 'none',
@@ -633,7 +740,7 @@ const App: React.FC = () => {
                 }}>
                   {settings.fileLibrary.length === 0 ? (
                     <div style={{
-                      fontSize: '11px',
+                      fontSize: '0.6875em',
                       color: theme.colors.textSecondary,
                       fontStyle: 'italic',
                       padding: '4px',
@@ -661,7 +768,7 @@ const App: React.FC = () => {
                             flex: 1,
                             textAlign: 'left',
                             padding: '2px 4px',
-                            fontSize: '11px',
+                            fontSize: '0.6875em',
                             backgroundColor: 'transparent',
                             color: loadedFilePath === entry.path
                               ? theme.colors.activeText
@@ -685,7 +792,7 @@ const App: React.FC = () => {
                           }}
                           style={{
                             padding: '0 4px',
-                            fontSize: '12px',
+                            fontSize: '0.75em',
                             backgroundColor: 'transparent',
                             color: theme.colors.textSecondary,
                             border: 'none',

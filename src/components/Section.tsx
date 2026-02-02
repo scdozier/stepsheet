@@ -57,7 +57,7 @@ const Section: React.FC<SectionProps> = ({ section, onToggleItem, onSelectItem }
         {/* Title */}
         <span
           style={{
-            fontSize: 13,
+            fontSize: '0.8125em',
             fontWeight: 600,
             color: theme.colors.textPrimary,
             flex: 1,
@@ -70,7 +70,7 @@ const Section: React.FC<SectionProps> = ({ section, onToggleItem, onSelectItem }
         {/* Progress indicator */}
         <span
           style={{
-            fontSize: 11,
+            fontSize: '0.6875em',
             color: theme.colors.textMuted,
             marginLeft: 8,
             transition: 'color 0.3s',

@@ -96,8 +96,8 @@ const ChecklistItem: React.FC<ChecklistItemProps> = ({ item, depth = 0, onToggle
         {/* Text */}
         <span
           style={{
-            fontSize: 14,
-            lineHeight: '20px',
+            fontSize: '0.875em',
+            lineHeight: 1.43,
             color: item.isCompleted ? theme.colors.textCompleted : theme.colors.textPrimary,
             textDecoration: item.isCompleted ? 'line-through' : 'none',
             flex: 1,
