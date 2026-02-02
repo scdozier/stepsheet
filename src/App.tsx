@@ -459,8 +459,7 @@ const App: React.FC = () => {
     }));
   };
 
-  // Get display title from markdown or fallback
-  const displayTitle = checklistData.title || 'DemoOverlay';
+
 
   return (
     <div style={{
@@ -491,7 +490,7 @@ const App: React.FC = () => {
           transition: 'background-color 0.3s, border-color 0.3s',
         }}
       >
-        {/* Left side: Close button + Title */}
+        {/* Left side: Close button */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', overflow: 'hidden', flex: 1 }}>
           {/* Close button (red traffic light) */}
           <button
@@ -518,18 +517,6 @@ const App: React.FC = () => {
             title="Close window"
             aria-label="Close window"
           />
-          <h1 style={{
-            fontSize: '0.875em',
-            fontWeight: 600,
-            margin: 0,
-            color: theme.colors.textPrimary,
-            transition: 'color 0.3s',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}>
-            {displayTitle}
-          </h1>
         </div>
 
         {/* Header buttons - must be no-drag */}

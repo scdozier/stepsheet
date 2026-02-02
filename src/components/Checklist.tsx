@@ -20,7 +20,23 @@ const Checklist: React.FC<ChecklistProps> = ({ data, onToggleItem, onSelectItem 
         padding: '12px 16px',
       }}
     >
-      {/* Sections */}
+      {/* Main Title (from # heading in markdown) */}
+      {data.title && data.title !== 'Load a Markdown File' && (
+        <h1
+          style={{
+            fontSize: '1.5em',
+            fontWeight: 700,
+            margin: '0 0 16px 0',
+            color: theme.colors.textPrimary,
+            transition: 'color 0.3s',
+            lineHeight: 1.3,
+          }}
+        >
+          {data.title}
+        </h1>
+      )}
+
+      {/* Sections (## headings) */}
       {data.sections.map((section) => (
         <Section
           key={section.id}
