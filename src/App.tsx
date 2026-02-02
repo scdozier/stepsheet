@@ -16,12 +16,19 @@ interface FileLibraryEntry {
 interface AppSettings {
   highlightCurrentStep: boolean;
   fileLibrary: FileLibraryEntry[];
+  textScale: number;
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
   highlightCurrentStep: true,
   fileLibrary: [],
+  textScale: 1.0,
 };
+
+// Text scale constraints
+const TEXT_SCALE_MIN = 0.8;
+const TEXT_SCALE_MAX = 1.5;
+const TEXT_SCALE_STEP = 0.1;
 
 // Default empty checklist when no file is loaded
 const emptyChecklist: ChecklistData = {
@@ -266,6 +273,30 @@ const App: React.FC = () => {
               items: updateItemById(section.items, currentItem.id, true),
             })),
           };
+
+          // Auto-advance to next unchecked item if highlight is enabled
+          if (settings.highlightCurrentStep) {
+            const newFlatItems = flattenItems(newData);
+            let nextIndex = -1;
+            // Find next unchecked item after current position
+            for (let i = currentItemIndex + 1; i < newFlatItems.length; i++) {
+              if (!newFlatItems[i].isCompleted) {
+                nextIndex = i;
+                break;
+              }
+            }
+            // Wrap around if no unchecked item found after current
+            if (nextIndex === -1) {
+              for (let i = 0; i < currentItemIndex; i++) {
+                if (!newFlatItems[i].isCompleted) {
+                  nextIndex = i;
+                  break;
+                }
+              }
+            }
+            setCurrentItemIndex(nextIndex);
+          }
+
           // Persist the updated state
           const newStates = extractTaskStates(newData);
           persistedTasksRef.current = newStates;
@@ -296,10 +327,15 @@ const App: React.FC = () => {
         }
       }
     });
-  }, [currentItemIndex, loadedFilePath]);
+  }, [currentItemIndex, loadedFilePath, settings.highlightCurrentStep]);
 
   const handleToggleItem = useCallback((id: string) => {
     setChecklistData((prev) => {
+      const flatItems = flattenItems(prev);
+      const toggledIndex = flatItems.findIndex((item) => item.id === id);
+      const toggledItem = toggledIndex !== -1 ? flatItems[toggledIndex] : null;
+      const wasUnchecked = toggledItem ? !toggledItem.isCompleted : false;
+
       const newData = {
         ...prev,
         sections: prev.sections.map((section) => ({
@@ -307,6 +343,33 @@ const App: React.FC = () => {
           items: updateItemById(section.items, id),
         })),
       };
+
+      // Auto-advance highlight if:
+      // 1. The item was checked (not unchecked)
+      // 2. Highlight current step setting is enabled
+      if (wasUnchecked && settings.highlightCurrentStep) {
+        const newFlatItems = flattenItems(newData);
+        // Find the next unchecked item after the one just checked
+        let nextIndex = -1;
+        for (let i = toggledIndex + 1; i < newFlatItems.length; i++) {
+          if (!newFlatItems[i].isCompleted) {
+            nextIndex = i;
+            break;
+          }
+        }
+        // If no unchecked item found after, wrap around to find from the beginning
+        if (nextIndex === -1) {
+          for (let i = 0; i < toggledIndex; i++) {
+            if (!newFlatItems[i].isCompleted) {
+              nextIndex = i;
+              break;
+            }
+          }
+        }
+        // Update the current item index (will trigger highlight update via useEffect)
+        setCurrentItemIndex(nextIndex);
+      }
+
       // Persist the updated state
       const newStates = extractTaskStates(newData);
       persistedTasksRef.current = newStates;
@@ -315,7 +378,7 @@ const App: React.FC = () => {
       });
       return newData;
     });
-  }, []);
+  }, [settings.highlightCurrentStep]);
 
   const handleSelectItem = useCallback((id: string) => {
     // Find the index of the item in the flattened list
@@ -330,6 +393,21 @@ const App: React.FC = () => {
     setSettings(prev => ({
       ...prev,
       highlightCurrentStep: !prev.highlightCurrentStep,
+    }));
+  };
+
+  // Text scale adjustment functions
+  const increaseTextScale = () => {
+    setSettings(prev => ({
+      ...prev,
+      textScale: Math.min(TEXT_SCALE_MAX, Math.round((prev.textScale + TEXT_SCALE_STEP) * 10) / 10),
+    }));
+  };
+
+  const decreaseTextScale = () => {
+    setSettings(prev => ({
+      ...prev,
+      textScale: Math.max(TEXT_SCALE_MIN, Math.round((prev.textScale - TEXT_SCALE_STEP) * 10) / 10),
     }));
   };
 
@@ -394,7 +472,8 @@ const App: React.FC = () => {
       borderRadius: '12px',
       overflow: 'hidden',
       border: `1px solid ${theme.colors.border}`,
-      transition: 'background-color 0.3s, color 0.3s, border-color 0.3s',
+      transition: 'background-color 0.3s, color 0.3s, border-color 0.3s, font-size 0.2s',
+      fontSize: `${settings.textScale * 100}%`,
     }}>
       {/* Draggable Header Area */}
       <div
@@ -523,7 +602,7 @@ const App: React.FC = () => {
                   <span style={{
                     fontSize: '11px',
                     fontWeight: 600,
-                    color: theme.colors.textSecondary,
+                    color: theme.colors.textMuted,
                     textTransform: 'uppercase',
                     letterSpacing: '0.5px',
                   }}>
@@ -534,11 +613,12 @@ const App: React.FC = () => {
                     style={{
                       padding: '2px 6px',
                       fontSize: '10px',
-                      backgroundColor: theme.colors.buttonBg,
-                      color: theme.colors.textPrimary,
+                      backgroundColor: theme.colors.accent,
+                      color: '#ffffff',
                       border: 'none',
                       borderRadius: '3px',
                       cursor: 'pointer',
+                      fontWeight: 500,
                     }}
                     title="Add markdown file"
                   >
@@ -605,12 +685,12 @@ const App: React.FC = () => {
                           }}
                           style={{
                             padding: '0 4px',
-                            fontSize: '10px',
+                            fontSize: '12px',
                             backgroundColor: 'transparent',
                             color: theme.colors.textSecondary,
                             border: 'none',
                             cursor: 'pointer',
-                            opacity: 0.7,
+                            fontWeight: 600,
                           }}
                           title="Remove from library"
                         >
