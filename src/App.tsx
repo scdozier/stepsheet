@@ -6,13 +6,21 @@ import { useTheme } from './ThemeContext';
 // Type for task state map
 type TaskStateMap = Record<string, boolean>;
 
+// Type for file library entry
+interface FileLibraryEntry {
+  path: string;
+  name: string;
+}
+
 // Type for app settings
 interface AppSettings {
   highlightCurrentStep: boolean;
+  fileLibrary: FileLibraryEntry[];
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
   highlightCurrentStep: true,
+  fileLibrary: [],
 };
 
 // Default empty checklist when no file is loaded
@@ -325,6 +333,54 @@ const App: React.FC = () => {
     }));
   };
 
+  // Load a file from the library
+  const loadFileFromLibrary = useCallback(async (filePath: string) => {
+    try {
+      const content = await window.electronAPI?.readFile(filePath);
+      if (content) {
+        const parsed = parseMarkdown(content);
+        const converted = convertParsedToChecklistData(parsed);
+        const withPersistedState = applyPersistedState(converted, persistedTasksRef.current);
+        setChecklistData(withPersistedState);
+        setLoadedFilePath(filePath);
+        setCurrentItemIndex(-1);
+      }
+    } catch (error) {
+      console.error('Failed to load file from library:', error);
+    }
+  }, []);
+
+  // Add a file to the library
+  const addFileToLibrary = async () => {
+    try {
+      const filePath = await window.electronAPI?.openFile();
+      if (filePath) {
+        // Extract file name from path
+        const name = filePath.split('/').pop() || filePath.split('\\').pop() || filePath;
+        // Check if already in library
+        const alreadyExists = settings.fileLibrary.some(entry => entry.path === filePath);
+        if (!alreadyExists) {
+          setSettings(prev => ({
+            ...prev,
+            fileLibrary: [...prev.fileLibrary, { path: filePath, name }],
+          }));
+        }
+        // Load the file
+        await loadFileFromLibrary(filePath);
+      }
+    } catch (error) {
+      console.error('Failed to add file to library:', error);
+    }
+  };
+
+  // Remove a file from the library
+  const removeFileFromLibrary = (filePath: string) => {
+    setSettings(prev => ({
+      ...prev,
+      fileLibrary: prev.fileLibrary.filter(entry => entry.path !== filePath),
+    }));
+  };
+
   // Get display title from markdown or fallback
   const displayTitle = checklistData.title || 'DemoOverlay';
 
@@ -426,7 +482,8 @@ const App: React.FC = () => {
                 border: `1px solid ${theme.colors.border}`,
                 borderRadius: '8px',
                 padding: '8px',
-                minWidth: '180px',
+                minWidth: '220px',
+                maxWidth: '280px',
                 zIndex: 100,
                 boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
               }}
@@ -450,6 +507,120 @@ const App: React.FC = () => {
                 />
                 Highlight current step
               </label>
+
+              {/* File Library Section */}
+              <div style={{
+                marginTop: '12px',
+                borderTop: `1px solid ${theme.colors.border}`,
+                paddingTop: '8px',
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: '8px',
+                }}>
+                  <span style={{
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    color: theme.colors.textSecondary,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                  }}>
+                    Markdown Files
+                  </span>
+                  <button
+                    onClick={addFileToLibrary}
+                    style={{
+                      padding: '2px 6px',
+                      fontSize: '10px',
+                      backgroundColor: theme.colors.buttonBg,
+                      color: theme.colors.textPrimary,
+                      border: 'none',
+                      borderRadius: '3px',
+                      cursor: 'pointer',
+                    }}
+                    title="Add markdown file"
+                  >
+                    + Add
+                  </button>
+                </div>
+
+                {/* File list */}
+                <div style={{
+                  maxHeight: '150px',
+                  overflowY: 'auto',
+                }}>
+                  {settings.fileLibrary.length === 0 ? (
+                    <div style={{
+                      fontSize: '11px',
+                      color: theme.colors.textSecondary,
+                      fontStyle: 'italic',
+                      padding: '4px',
+                    }}>
+                      No files added
+                    </div>
+                  ) : (
+                    settings.fileLibrary.map((entry) => (
+                      <div
+                        key={entry.path}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          padding: '4px',
+                          borderRadius: '4px',
+                          backgroundColor: loadedFilePath === entry.path
+                            ? theme.colors.activeBg
+                            : 'transparent',
+                        }}
+                      >
+                        <button
+                          onClick={() => loadFileFromLibrary(entry.path)}
+                          style={{
+                            flex: 1,
+                            textAlign: 'left',
+                            padding: '2px 4px',
+                            fontSize: '11px',
+                            backgroundColor: 'transparent',
+                            color: loadedFilePath === entry.path
+                              ? theme.colors.activeText
+                              : theme.colors.textPrimary,
+                            border: 'none',
+                            cursor: 'pointer',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            fontWeight: loadedFilePath === entry.path ? 600 : 400,
+                          }}
+                          title={entry.path}
+                        >
+                          {loadedFilePath === entry.path && '● '}
+                          {entry.name}
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeFileFromLibrary(entry.path);
+                          }}
+                          style={{
+                            padding: '0 4px',
+                            fontSize: '10px',
+                            backgroundColor: 'transparent',
+                            color: theme.colors.textSecondary,
+                            border: 'none',
+                            cursor: 'pointer',
+                            opacity: 0.7,
+                          }}
+                          title="Remove from library"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
             </div>
           )}
         </div>
