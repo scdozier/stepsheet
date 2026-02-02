@@ -6,9 +6,10 @@ import { useTheme } from '../ThemeContext';
 interface SectionProps {
   section: SectionData;
   onToggleItem?: (id: string) => void;
+  onSelectItem?: (id: string) => void;
 }
 
-const Section: React.FC<SectionProps> = ({ section, onToggleItem }) => {
+const Section: React.FC<SectionProps> = ({ section, onToggleItem, onSelectItem }) => {
   const { theme } = useTheme();
   const [isCollapsed, setIsCollapsed] = useState(section.isCollapsed ?? false);
 
@@ -92,6 +93,7 @@ const Section: React.FC<SectionProps> = ({ section, onToggleItem }) => {
               key={item.id}
               item={item}
               onToggle={onToggleItem}
+              onSelect={onSelectItem}
             />
           ))}
         </div>

@@ -7,13 +7,15 @@ interface ChecklistItemProps {
   item: ChecklistItemData;
   depth?: number;
   onToggle?: (id: string) => void;
+  onSelect?: (id: string) => void;
 }
 
-const ChecklistItem: React.FC<ChecklistItemProps> = ({ item, depth = 0, onToggle }) => {
+const ChecklistItem: React.FC<ChecklistItemProps> = ({ item, depth = 0, onToggle, onSelect }) => {
   const { theme } = useTheme();
   const hasChildren = item.children && item.children.length > 0;
 
   const handleClick = () => {
+    onSelect?.(item.id);
     onToggle?.(item.id);
   };
 
@@ -122,6 +124,7 @@ const ChecklistItem: React.FC<ChecklistItemProps> = ({ item, depth = 0, onToggle
               item={child}
               depth={depth + 1}
               onToggle={onToggle}
+              onSelect={onSelect}
             />
           ))}
         </div>

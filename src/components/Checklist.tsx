@@ -6,9 +6,10 @@ import { useTheme } from '../ThemeContext';
 interface ChecklistProps {
   data: ChecklistData;
   onToggleItem?: (id: string) => void;
+  onSelectItem?: (id: string) => void;
 }
 
-const Checklist: React.FC<ChecklistProps> = ({ data, onToggleItem }) => {
+const Checklist: React.FC<ChecklistProps> = ({ data, onToggleItem, onSelectItem }) => {
   const { theme } = useTheme();
 
   return (
@@ -42,6 +43,7 @@ const Checklist: React.FC<ChecklistProps> = ({ data, onToggleItem }) => {
           key={section.id}
           section={section}
           onToggleItem={onToggleItem}
+          onSelectItem={onSelectItem}
         />
       ))}
 

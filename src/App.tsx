@@ -309,6 +309,15 @@ const App: React.FC = () => {
     });
   }, []);
 
+  const handleSelectItem = useCallback((id: string) => {
+    // Find the index of the item in the flattened list
+    const flatItems = flattenItems(checklistData);
+    const index = flatItems.findIndex((item) => item.id === id);
+    if (index !== -1) {
+      setCurrentItemIndex(index);
+    }
+  }, [checklistData]);
+
   const toggleHighlightSetting = () => {
     setSettings(prev => ({
       ...prev,
@@ -462,7 +471,7 @@ const App: React.FC = () => {
       )}
 
       {/* Checklist Content Area */}
-      <Checklist data={checklistData} onToggleItem={handleToggleItem} />
+      <Checklist data={checklistData} onToggleItem={handleToggleItem} onSelectItem={handleSelectItem} />
     </div>
   );
 };
