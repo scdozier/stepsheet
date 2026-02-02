@@ -7,14 +7,34 @@ export interface TaskState {
   [taskId: string]: boolean;
 }
 
+// File library entry
+export interface FileLibraryEntry {
+  path: string;
+  name: string;
+}
+
+// App settings
+export interface AppSettings {
+  highlightCurrentStep: boolean;
+  fileLibrary: FileLibraryEntry[];
+  textScale: number;
+}
+
 export interface AppState {
   version: number;
   tasks: TaskState;
+  settings: AppSettings;
   lastUpdated: string;
 }
 
-const STATE_VERSION = 1;
+const STATE_VERSION = 2;
 const STATE_FILE_NAME = 'demo-state.json';
+
+const DEFAULT_SETTINGS: AppSettings = {
+  highlightCurrentStep: true,
+  fileLibrary: [],
+  textScale: 1.0,
+};
 
 function getStateFilePath(): string {
   return path.join(app.getPath('userData'), STATE_FILE_NAME);
@@ -24,6 +44,7 @@ function createDefaultState(): AppState {
   return {
     version: STATE_VERSION,
     tasks: {},
+    settings: DEFAULT_SETTINGS,
     lastUpdated: new Date().toISOString(),
   };
 }
@@ -43,6 +64,11 @@ export function loadState(): AppState {
         return {
           ...createDefaultState(),
           ...state,
+          // Merge settings with defaults in case new settings are added
+          settings: {
+            ...DEFAULT_SETTINGS,
+            ...(state.settings || {}),
+          },
           version: STATE_VERSION, // Always use current version
         };
       }
@@ -83,11 +109,15 @@ export function toggleTask(taskId: string): AppState {
 }
 
 /**
- * Reset all task state
- * Returns the new empty state
+ * Reset all task state (but keep settings)
+ * Returns the new state
  */
 export function resetState(): AppState {
-  const state = createDefaultState();
+  const currentState = loadState();
+  const state: AppState = {
+    ...createDefaultState(),
+    settings: currentState.settings, // Preserve settings
+  };
   saveState(state);
   return state;
 }
@@ -110,3 +140,20 @@ export function updateTasks(tasks: TaskState): AppState {
   return state;
 }
 
+/**
+ * Load settings
+ */
+export function loadSettings(): AppSettings {
+  const state = loadState();
+  return state.settings;
+}
+
+/**
+ * Save settings
+ */
+export function saveSettings(settings: AppSettings): AppState {
+  const state = loadState();
+  state.settings = settings;
+  saveState(state);
+  return state;
+}

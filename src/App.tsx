@@ -182,10 +182,13 @@ const App: React.FC = () => {
           persistedTasksRef.current = state.tasks;
           setChecklistData((prev) => applyPersistedState(prev, state.tasks));
         }
-        // Load settings from localStorage
-        const savedSettings = localStorage.getItem('demoOverlaySettings');
+        // Load settings from Electron persistent storage
+        const savedSettings = await window.electronAPI?.loadSettings();
         if (savedSettings) {
-          setSettings(JSON.parse(savedSettings));
+          setSettings(prev => ({
+            ...prev,
+            ...savedSettings,
+          }));
         }
       } catch (error) {
         console.error('Failed to load persisted state:', error);
@@ -198,8 +201,8 @@ const App: React.FC = () => {
 
   // Save settings when they change
   useEffect(() => {
-    localStorage.setItem('demoOverlaySettings', JSON.stringify(settings));
-  }, [settings]);
+    if (isStateLoaded) { window.electronAPI?.saveSettings(settings).catch(err => console.error('Failed to save settings:', err)); }
+  }, [settings, isStateLoaded]);
 
   // Subscribe to file selection from menu
   useEffect(() => {

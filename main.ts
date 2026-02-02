@@ -1,7 +1,7 @@
 import { app, BrowserWindow, ipcMain, screen, dialog, globalShortcut, Tray, Menu, nativeImage } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
-import { loadState, saveState, resetState, AppState, TaskState } from './src/state/stateManager';
+import { loadState, saveState, resetState, loadSettings, saveSettings, AppState, TaskState, AppSettings } from './src/state/stateManager';
 
 let mainWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
@@ -260,9 +260,12 @@ ipcMain.handle('state:load', () => {
 
 ipcMain.handle('state:save', (_event, tasks: TaskState) => {
   try {
+    // Load current state to preserve settings
+    const currentState = loadState();
     const state: AppState = {
-      version: 1,
+      version: 2,
       tasks,
+      settings: currentState.settings,
       lastUpdated: new Date().toISOString(),
     };
     saveState(state);
@@ -278,6 +281,26 @@ ipcMain.handle('state:reset', () => {
     return resetState();
   } catch (error) {
     console.error('Failed to reset state:', error);
+    throw error;
+  }
+});
+
+// IPC handlers for settings persistence
+ipcMain.handle('settings:load', () => {
+  try {
+    return loadSettings();
+  } catch (error) {
+    console.error('Failed to load settings:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('settings:save', (_event, settings: AppSettings) => {
+  try {
+    saveSettings(settings);
+    return settings;
+  } catch (error) {
+    console.error('Failed to save settings:', error);
     throw error;
   }
 });

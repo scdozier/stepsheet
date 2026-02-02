@@ -1,9 +1,22 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
+// File library entry type
+interface FileLibraryEntry {
+  path: string;
+  name: string;
+}
+
+// App settings type
+interface AppSettingsData {
+  highlightCurrentStep: boolean;
+  fileLibrary: FileLibraryEntry[];
+  textScale: number;
+}
+
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld('electronAPI', {
-  // File operations (to be implemented in later tasks)
+  // File operations
   openFile: () => ipcRenderer.invoke('dialog:openFile'),
   readFile: (filePath: string) => ipcRenderer.invoke('file:read', filePath),
 
@@ -11,6 +24,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveState: (state: Record<string, boolean>) => ipcRenderer.invoke('state:save', state),
   loadState: () => ipcRenderer.invoke('state:load'),
   resetState: () => ipcRenderer.invoke('state:reset'),
+
+  // Settings operations
+  saveSettings: (settings: AppSettingsData) => ipcRenderer.invoke('settings:save', settings),
+  loadSettings: () => ipcRenderer.invoke('settings:load'),
 
   // Window operations
   hideWindow: () => ipcRenderer.send('window:hide'),
@@ -57,6 +74,7 @@ interface TaskStateMap {
 interface AppStateData {
   version: number;
   tasks: TaskStateMap;
+  settings: AppSettingsData;
   lastUpdated: string;
 }
 
@@ -69,6 +87,8 @@ declare global {
       saveState: (state: TaskStateMap) => Promise<AppStateData>;
       loadState: () => Promise<AppStateData>;
       resetState: () => Promise<AppStateData>;
+      saveSettings: (settings: AppSettingsData) => Promise<AppSettingsData>;
+      loadSettings: () => Promise<AppSettingsData>;
       hideWindow: () => void;
       closeWindow: () => void;
       showWindow: () => void;
@@ -84,4 +104,3 @@ declare global {
     };
   }
 }
-
