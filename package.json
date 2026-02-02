@@ -44,10 +44,11 @@
       "src/**/*",
       "assets/**/*",
       "index.html",
-      "package.json"
+      "package.json",
+      "sample/**/*"
     ],
     "directories": {
-      "output": "release"
+      "output": "dist"
     }
   }
 }
