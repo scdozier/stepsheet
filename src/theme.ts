@@ -17,6 +17,7 @@ export interface Theme {
     textSecondary: string;
     textMuted: string;
     textCompleted: string;
+    activeText: string;
     
     // Borders
     border: string;
@@ -51,6 +52,7 @@ export const darkTheme: Theme = {
     textSecondary: '#b8bcc5',
     textMuted: '#8e929a',
     textCompleted: '#5a5d65',
+    activeText: '#3b8eff',
 
     // More visible borders
     border: 'rgba(255, 255, 255, 0.12)',
@@ -85,6 +87,7 @@ export const lightTheme: Theme = {
     textSecondary: '#3d3d42',
     textMuted: '#6e6e76',
     textCompleted: '#9d9da5',
+    activeText: '#0066e6',
 
     // Stronger borders for definition
     border: 'rgba(0, 0, 0, 0.12)',
