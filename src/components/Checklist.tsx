@@ -20,23 +20,6 @@ const Checklist: React.FC<ChecklistProps> = ({ data, onToggleItem, onSelectItem 
         padding: '12px 16px',
       }}
     >
-      {/* Optional Title */}
-      {data.title && (
-        <h2
-          style={{
-            fontSize: 16,
-            fontWeight: 600,
-            color: theme.colors.textPrimary,
-            marginBottom: 16,
-            paddingBottom: 8,
-            borderBottom: `1px solid ${theme.colors.border}`,
-            transition: 'color 0.3s, border-color 0.3s',
-          }}
-        >
-          {data.title}
-        </h2>
-      )}
-
       {/* Sections */}
       {data.sections.map((section) => (
         <Section
