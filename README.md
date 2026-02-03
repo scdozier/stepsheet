@@ -41,7 +41,15 @@ brew tap scdozier/stepsheet
 brew install stepsheet
 ```
 
-This builds the app from source on your machine, so no code signing is required.
+After installation, add to your Applications folder:
+
+```bash
+ln -sf /opt/homebrew/opt/stepsheet/StepSheet.app /Applications/StepSheet.app
+```
+
+Then launch from Applications or run `stepsheet` in terminal.
+
+> **Note:** This builds the app from source on your machine, so no code signing is required.
 
 ### Windows
 
@@ -49,7 +57,7 @@ Download the installer from the [Releases](https://github.com/scdozier/stepsheet
 
 ### From Source
 
-**Requirements:** Node.js 18+
+**Requirements:** Node.js 22+
 
 ```bash
 git clone https://github.com/scdozier/stepsheet.git
