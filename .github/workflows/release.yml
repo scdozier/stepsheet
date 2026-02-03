@@ -108,12 +108,23 @@ jobs:
             ## StepSheet ${{ steps.get_version.outputs.version }}
 
             ### Downloads
-            - **macOS**: Download the `.dmg` file below
+            - **macOS**: Download the `.dmg` file below (choose `arm64` for Apple Silicon or `x64` for Intel Macs)
             - **Windows**: Download the `.exe` installer below
 
             ### Installation
-            - **macOS**: Open the `.dmg` file and drag StepSheet to Applications
-            - **Windows**: Run the `.exe` installer
+
+            #### macOS
+            1. Download and open the `.dmg` file
+            2. Drag StepSheet to Applications
+            3. **Important**: Since this app is not code-signed, macOS may show "damaged" or "unidentified developer" warnings
+            4. To fix this, open Terminal and run:
+               ```
+               xattr -cr /Applications/StepSheet.app
+               ```
+            5. Then open StepSheet from Applications
+
+            #### Windows
+            Run the `.exe` installer
 
             ### What's New
             See the [CHANGELOG](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details.
