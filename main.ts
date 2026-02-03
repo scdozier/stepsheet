@@ -75,8 +75,7 @@ function createWindow(): void {
     },
     // Overlay configuration
     transparent: true,
-    titleBarStyle: 'hiddenInset',
-    trafficLightPosition: { x: 12, y: 12 },
+    frame: false,
     alwaysOnTop: true,
     resizable: true,
     hasShadow: false,

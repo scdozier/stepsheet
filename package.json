@@ -2,15 +2,15 @@
   "name": "demo-overlay",
   "version": "1.0.0",
   "description": "macOS Electron overlay checklist app for live demos",
-  "main": "dist/main.js",
+  "main": "build/main.js",
   "scripts": {
     "start": "npm run build && electron .",
     "build": "npm run build:main && npm run build:renderer",
-    "build:main": "tsc",
-    "build:renderer": "esbuild src/index.tsx --bundle --outfile=dist/src/index.js --platform=browser --format=esm --external:electron",
-    "watch": "tsc -w",
-    "dist": "electron-builder",
-    "clean": "rm -rf dist"
+    "build:main": "tsc --outDir build",
+    "build:renderer": "esbuild src/index.tsx --bundle --outfile=build/src/index.js --platform=browser --format=esm --external:electron",
+    "watch": "tsc -w --outDir build",
+    "dist": "npm run build && electron-builder",
+    "clean": "rm -rf build release"
   },
   "author": "",
   "license": "MIT",
@@ -40,15 +40,14 @@
       "icon": "assets/icon.icns"
     },
     "files": [
-      "dist/**/*",
-      "src/**/*",
+      "build/**/*",
       "assets/**/*",
       "index.html",
       "package.json",
       "sample/**/*"
     ],
     "directories": {
-      "output": "dist"
+      "output": "release"
     }
   }
 }

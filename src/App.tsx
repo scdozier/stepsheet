@@ -493,8 +493,24 @@ const App: React.FC = () => {
           transition: 'background-color 0.3s, border-color 0.3s',
         }}
       >
-        {/* Left side: spacing for native macOS traffic lights */}
-        <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '60px' }}></div>
+        {/* Left side: Close button */}
+        <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '12px' }}>
+          <button
+            onClick={() => window.electronAPI?.closeWindow?.()}
+            style={{
+              // @ts-expect-error - WebkitAppRegion is a valid CSS property for Electron
+              WebkitAppRegion: 'no-drag',
+              width: '12px',
+              height: '12px',
+              borderRadius: '50%',
+              backgroundColor: '#ff5f57',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 0,
+            }}
+            title="Close"
+          />
+        </div>
 
         {/* Header buttons - must be no-drag */}
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center', position: 'relative' }}>
