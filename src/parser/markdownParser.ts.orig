@@ -1,7 +1,7 @@
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
-import type { Root, Content, List, ListItem, Paragraph, Text, Heading, Html, Image, InlineCode, Strong, Emphasis } from 'mdast';
+import type { Root, Content, List, ListItem, Paragraph, Text, Heading, Html, Image } from 'mdast';
 
 // Types for structured output
 export interface ImageData {
@@ -33,18 +33,6 @@ export interface ParsedMarkdown {
 function extractText(node: Paragraph | Content): string {
   if (node.type === 'text') {
     return (node as Text).value;
-  }
-  if (node.type === 'inlineCode') {
-    // Preserve inline code with backticks
-    return '`' + (node as InlineCode).value + '`';
-  }
-  if (node.type === 'strong') {
-    // Preserve bold text content
-    return (node as Strong).children.map((child) => extractText(child as Content)).join('');
-  }
-  if (node.type === 'emphasis') {
-    // Preserve italic text content
-    return (node as Emphasis).children.map((child) => extractText(child as Content)).join('');
   }
   if (node.type === 'image') {
     // Skip images in text extraction
@@ -186,3 +174,4 @@ export function parseMarkdown(markdownContent: string): ParsedMarkdown {
 }
 
 export default parseMarkdown;
+
