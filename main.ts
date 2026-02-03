@@ -82,7 +82,6 @@ function createWindow(): void {
     hasShadow: false,
     skipTaskbar: true,
     backgroundColor: '#00000000',
-    show: false, // Wait until ready-to-show
     // macOS specific
     vibrancy: undefined,
     visualEffectState: 'active',
@@ -90,10 +89,6 @@ function createWindow(): void {
 
   mainWindow.loadFile('index.html');
 
-  // Show window only when content is ready (prevents flash)
-  mainWindow.once('ready-to-show', () => {
-    mainWindow?.show();
-  });
 
   // Keep window always on top with floating level
   mainWindow.setAlwaysOnTop(true, 'floating');
