@@ -4,7 +4,13 @@
 
 A menu bar app that displays an always-on-top checklist overlay for live demos and presentations. Load markdown files with task lists and track your progress during demos with keyboard shortcuts.
 
-![StepSheet Screenshot](docs/screenshot.jpg)
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/screenshot.png">
+    <source media="(prefers-color-scheme: light)" srcset="docs/screenshot.png">
+    <img src="docs/screenshot.png" alt="StepSheet Screenshot" width="400">
+  </picture>
+</p>
 
 **Built for macOS and Windows. Tested on macOS only.**
 
