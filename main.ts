@@ -343,7 +343,7 @@ function unregisterGlobalShortcuts(): void {
 app.whenReady().then(() => {
   // Hide dock icon - this makes it a menu bar app
   if (process.platform === 'darwin') {
-    app.dock.hide();
+    app.dock?.hide();
   }
 
   createWindow();
