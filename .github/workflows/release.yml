@@ -17,14 +17,7 @@ permissions:
 jobs:
   build:
     name: Build and Release
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-          - os: macos-latest
-            platform: mac
-          - os: windows-latest
-            platform: win
+    runs-on: windows-latest
 
     steps:
       - name: Checkout code
@@ -46,17 +39,15 @@ jobs:
         run: npm run build
 
       - name: Build distribution
-        run: npm run dist:${{ matrix.platform }}
+        run: npm run dist:win
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: release-${{ matrix.platform }}
-          path: |
-            release/*.dmg
-            release/*.exe
+          name: release-win
+          path: release/*.exe
           if-no-files-found: ignore
 
   release:
@@ -77,19 +68,11 @@ jobs:
             echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
           fi
 
-      - name: Download macOS artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: release-mac
-          path: release
-        continue-on-error: true
-
       - name: Download Windows artifacts
         uses: actions/download-artifact@v4
         with:
           name: release-win
           path: release
-        continue-on-error: true
 
       - name: List release files
         run: ls -la release/ || echo "No release files found"
@@ -101,30 +84,20 @@ jobs:
           name: StepSheet ${{ steps.get_version.outputs.version }}
           draft: false
           prerelease: false
-          files: |
-            release/*.dmg
-            release/*.exe
+          files: release/*.exe
           body: |
             ## StepSheet ${{ steps.get_version.outputs.version }}
 
-            ### Downloads
-            - **macOS**: Download the `.dmg` file below (choose `arm64` for Apple Silicon or `x64` for Intel Macs)
-            - **Windows**: Download the `.exe` installer below
-
             ### Installation
 
-            #### macOS
-            1. Download and open the `.dmg` file
-            2. Drag StepSheet to Applications
-            3. **Important**: Since this app is not code-signed, macOS may show "damaged" or "unidentified developer" warnings
-            4. To fix this, open Terminal and run:
-               ```
-               xattr -cr /Applications/StepSheet.app
-               ```
-            5. Then open StepSheet from Applications
+            #### macOS (via Homebrew)
+            ```bash
+            brew tap scdozier/tap
+            brew install stepsheet
+            ```
 
             #### Windows
-            Run the `.exe` installer
+            Download and run the `.exe` installer below.
 
             ### What's New
             See the [CHANGELOG](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details.
