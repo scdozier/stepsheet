@@ -1,6 +1,6 @@
 {
   "name": "stepsheet",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "A menu bar app that displays an always-on-top checklist overlay for live demos and presentations",
   "main": "build/main.js",
   "scripts": {

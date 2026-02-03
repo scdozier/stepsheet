@@ -11,18 +11,63 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: write
+
 jobs:
-  create-release:
-    name: Create Release
-    runs-on: ubuntu-latest
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-      version: ${{ steps.get_version.outputs.version }}
-    
+  build:
+    name: Build and Release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            platform: mac
+          - os: windows-latest
+            platform: win
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build application
+        run: npm run build
+
+      - name: Build distribution
+        run: npm run dist:${{ matrix.platform }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.platform }}
+          path: |
+            release/*.dmg
+            release/*.exe
+          if-no-files-found: ignore
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Get version
         id: get_version
         run: |
@@ -31,17 +76,34 @@ jobs:
           else
             echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
           fi
-      
+
+      - name: Download macOS artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-mac
+          path: release
+        continue-on-error: true
+
+      - name: Download Windows artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-win
+          path: release
+        continue-on-error: true
+
+      - name: List release files
+        run: ls -la release/ || echo "No release files found"
+
       - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.get_version.outputs.version }}
-          release_name: StepSheet ${{ steps.get_version.outputs.version }}
+          name: StepSheet ${{ steps.get_version.outputs.version }}
           draft: false
           prerelease: false
+          files: |
+            release/*.dmg
+            release/*.exe
           body: |
             ## StepSheet ${{ steps.get_version.outputs.version }}
 
@@ -52,100 +114,9 @@ jobs:
             ### Installation
             - **macOS**: Open the `.dmg` file and drag StepSheet to Applications
             - **Windows**: Run the `.exe` installer
-            
+
             ### What's New
             See the [CHANGELOG](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details.
-
-  build-macos:
-    name: Build macOS
-    needs: create-release
-    runs-on: macos-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-      
-      - name: Install dependencies
-        run: npm ci
-      
-      - name: Run tests
-        run: npm test
-      
-      - name: Build application
-        run: npm run build
-      
-      - name: Build macOS distribution
-        run: npm run dist:mac
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Get DMG filename
-        id: get_dmg
-        run: |
-          DMG_FILE=$(ls release/*.dmg | head -n 1)
-          echo "dmg_path=$DMG_FILE" >> $GITHUB_OUTPUT
-          echo "dmg_name=$(basename $DMG_FILE)" >> $GITHUB_OUTPUT
-      
-      - name: Upload macOS DMG
-        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ steps.get_dmg.outputs.dmg_path }}
-          asset_name: ${{ steps.get_dmg.outputs.dmg_name }}
-          asset_content_type: application/octet-stream
-
-  build-windows:
-    name: Build Windows
-    needs: create-release
-    runs-on: windows-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-      
-      - name: Install dependencies
-        run: npm ci
-      
-      - name: Run tests
-        run: npm test
-      
-      - name: Build application
-        run: npm run build
-      
-      - name: Build Windows distribution
-        run: npm run dist:win
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Get EXE filename
-        id: get_exe
-        shell: bash
-        run: |
-          EXE_FILE=$(ls release/*.exe | head -n 1)
-          echo "exe_path=$EXE_FILE" >> $GITHUB_OUTPUT
-          echo "exe_name=$(basename $EXE_FILE)" >> $GITHUB_OUTPUT
-      
-      - name: Upload Windows EXE
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ steps.get_exe.outputs.exe_path }}
-          asset_name: ${{ steps.get_exe.outputs.exe_name }}
-          asset_content_type: application/octet-stream
 
