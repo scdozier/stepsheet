@@ -32,38 +32,41 @@ A menu bar app that displays an always-on-top checklist overlay for live demos a
 | macOS 12+ | ✅ Tested |
 | Windows 10+ | ⚠️ Built, untested |
 
-## Requirements
-
-- **Node.js 18+**
-- npm or compatible package manager
-
 ## Installation
+
+### macOS (via Homebrew)
+
+```bash
+brew tap scdozier/tap
+brew install stepsheet
+```
+
+This builds the app from source on your machine, so no code signing is required.
+
+### Windows
+
+Download the installer from the [Releases](https://github.com/scdozier/stepsheet/releases) page.
+
+### From Source
+
+**Requirements:** Node.js 18+
 
 ```bash
 git clone https://github.com/scdozier/stepsheet.git
 cd stepsheet
 npm install
+npm run build
+npm start
 ```
 
-## Running
-
-### Development
+## Development
 
 ```bash
 npm start          # Build and launch the app
 npm run build      # Build TypeScript and bundle React
 npm run watch      # Watch mode for TypeScript
-```
-
-### Production Distribution
-
-```bash
 npm run dist       # Create platform-specific installer in release/ folder
 ```
-
-This generates installers using electron-builder:
-- **macOS**: `.dmg` installer with signed `.app` bundle
-- **Windows**: `.exe` installer (NSIS)
 
 ## Creating Markdown Files
 
