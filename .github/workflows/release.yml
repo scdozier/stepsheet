@@ -92,7 +92,7 @@ jobs:
 
             #### macOS (via Homebrew)
             ```bash
-            brew tap scdozier/tap
+            brew tap scdozier/stepsheet
             brew install stepsheet
             ```
 

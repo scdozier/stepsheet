@@ -37,7 +37,7 @@ A menu bar app that displays an always-on-top checklist overlay for live demos a
 ### macOS (via Homebrew)
 
 ```bash
-brew tap scdozier/tap
+brew tap scdozier/stepsheet
 brew install stepsheet
 ```
 
