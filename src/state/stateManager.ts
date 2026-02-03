@@ -28,7 +28,7 @@ export interface AppState {
 }
 
 const STATE_VERSION = 2;
-const STATE_FILE_NAME = 'demo-state.json';
+const STATE_FILE_NAME = 'stepsheet-state.json';
 
 const DEFAULT_SETTINGS: AppSettings = {
   highlightCurrentStep: true,

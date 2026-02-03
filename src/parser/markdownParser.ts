@@ -1,7 +1,20 @@
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
-import type { Root, Content, List, ListItem, Paragraph, Text, Heading, Html, Image, InlineCode, Strong, Emphasis } from 'mdast';
+import type {
+  Root,
+  Content,
+  List,
+  ListItem,
+  Paragraph,
+  Text,
+  Heading,
+  Html,
+  Image,
+  InlineCode,
+  Strong,
+  Emphasis,
+} from 'mdast';
 
 // Types for structured output
 export interface ImageData {

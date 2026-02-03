@@ -1,6 +1,12 @@
-# DemoOverlay
+# StepSheet
 
-A macOS menu bar app that displays an always-on-top checklist overlay for live demos and presentations. Load markdown files with task lists and track your progress during demos with keyboard shortcuts.
+[![CI](https://github.com/scdozier/stepsheet/actions/workflows/ci.yml/badge.svg)](https://github.com/scdozier/stepsheet/actions/workflows/ci.yml)
+
+A menu bar app that displays an always-on-top checklist overlay for live demos and presentations. Load markdown files with task lists and track your progress during demos with keyboard shortcuts.
+
+![StepSheet Screenshot](docs/screenshot.jpg)
+
+**Built for macOS and Windows. Tested on macOS only.**
 
 ## Features
 
@@ -13,17 +19,23 @@ A macOS menu bar app that displays an always-on-top checklist overlay for live d
 - **File library** — quick access to frequently used checklists
 - **Click-through mode** — interact with apps behind the overlay
 
+## Platform Support
+
+| Platform | Status |
+|----------|--------|
+| macOS 12+ | ✅ Tested |
+| Windows 10+ | ⚠️ Built, untested |
+
 ## Requirements
 
-- **macOS** (tested on macOS 12+)
 - **Node.js 18+**
 - npm or compatible package manager
 
 ## Installation
 
 ```bash
-git clone <repository-url>
-cd demo_overlay
+git clone https://github.com/scdozier/stepsheet.git
+cd stepsheet
 npm install
 ```
 
@@ -40,14 +52,16 @@ npm run watch      # Watch mode for TypeScript
 ### Production Distribution
 
 ```bash
-npm run dist       # Create .dmg installer in release/ folder
+npm run dist       # Create platform-specific installer in release/ folder
 ```
 
-This generates a signed `.app` bundle using electron-builder.
+This generates installers using electron-builder:
+- **macOS**: `.dmg` installer with signed `.app` bundle
+- **Windows**: `.exe` installer (NSIS)
 
 ## Creating Markdown Files
 
-DemoOverlay parses standard markdown with GitHub-style task lists.
+StepSheet parses standard markdown with GitHub-style task lists.
 
 ### Format Guide
 
@@ -121,6 +135,10 @@ Click the menu bar icon for:
 - **Click-Through Mode** — Allow clicks to pass through
 - **Reset Checklist** — Uncheck all items
 - **Quit** — Exit the application
+
+## Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## License
 

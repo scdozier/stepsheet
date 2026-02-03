@@ -1,7 +1,26 @@
-import { app, BrowserWindow, ipcMain, screen, dialog, globalShortcut, Tray, Menu, nativeImage } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  screen,
+  dialog,
+  globalShortcut,
+  Tray,
+  Menu,
+  nativeImage,
+} from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
-import { loadState, saveState, resetState, loadSettings, saveSettings, AppState, TaskState, AppSettings } from './src/state/stateManager';
+import {
+  loadState,
+  saveState,
+  resetState,
+  loadSettings,
+  saveSettings,
+  AppState,
+  TaskState,
+  AppSettings,
+} from './src/state/stateManager';
 
 let mainWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
@@ -48,7 +67,7 @@ function saveWindowState(): void {
 
 function getDefaultBounds(): WindowState {
   const primaryDisplay = screen.getPrimaryDisplay();
-  const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize;
+  const { width: screenWidth } = primaryDisplay.workAreaSize;
   const windowWidth = 400;
   const windowHeight = 600;
   return {
@@ -88,7 +107,6 @@ function createWindow(): void {
 
   mainWindow.loadFile('index.html');
 
-
   // Keep window always on top with floating level
   mainWindow.setAlwaysOnTop(true, 'floating');
 
@@ -113,7 +131,7 @@ function createTray(): void {
   icon.setTemplateImage(true);
 
   tray = new Tray(icon);
-  tray.setToolTip('Demo Overlay');
+  tray.setToolTip('StepSheet');
 
   updateTrayMenu();
 }
@@ -204,12 +222,12 @@ ipcMain.handle('window:getClickThrough', () => {
 
 // IPC handlers for window visibility
 ipcMain.on('window:close', () => {
-    if (mainWindow) {
-      mainWindow.close();
-    }
-  });
+  if (mainWindow) {
+    mainWindow.close();
+  }
+});
 
-  ipcMain.on('window:hide', () => {
+ipcMain.on('window:hide', () => {
   mainWindow?.hide();
 });
 
@@ -373,4 +391,3 @@ app.on('before-quit', () => {
 app.on('will-quit', () => {
   unregisterGlobalShortcuts();
 });
-

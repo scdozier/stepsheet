@@ -9,4 +9,3 @@ export type { ChecklistData, SectionData, ChecklistItemData, ImageData } from '.
 
 // Mock data for testing
 export { mockChecklistData } from './mockData';
-

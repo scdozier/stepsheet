@@ -1,7 +1,7 @@
 {
-  "name": "demo-overlay",
+  "name": "stepsheet",
   "version": "1.0.0",
-  "description": "macOS Electron overlay checklist app for live demos",
+  "description": "A menu bar app that displays an always-on-top checklist overlay for live demos and presentations",
   "main": "build/main.js",
   "scripts": {
     "start": "npm run build && electron .",
@@ -10,18 +10,42 @@
     "build:renderer": "esbuild src/index.tsx --bundle --outfile=build/src/index.js --platform=browser --format=esm --external:electron",
     "watch": "tsc -w --outDir build",
     "dist": "npm run build && electron-builder",
-    "clean": "rm -rf build release"
+    "dist:mac": "npm run build && electron-builder --mac",
+    "dist:win": "npm run build && electron-builder --win",
+    "clean": "rm -rf build release",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
+    "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
+    "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,json}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,json}\""
   },
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.0",
+    "@eslint/js": "^9.39.2",
+    "@types/jest": "^30.0.0",
     "@types/mdast": "^4.0.4",
     "@types/node": "^20.10.0",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
+    "@typescript-eslint/eslint-plugin": "^8.54.0",
+    "@typescript-eslint/parser": "^8.54.0",
+    "babel-jest": "^30.2.0",
     "electron": "^40.0.0",
     "electron-builder": "^24.9.1",
     "esbuild": "^0.19.0",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "jest": "^30.2.0",
+    "prettier": "^3.8.1",
+    "ts-jest": "^29.4.6",
     "typescript": "^5.3.3"
   },
   "dependencies": {
@@ -32,12 +56,18 @@
     "unified": "^11.0.5"
   },
   "build": {
-    "appId": "com.demo-overlay.app",
-    "productName": "DemoOverlay",
+    "appId": "com.stepsheet.app",
+    "productName": "StepSheet",
     "mac": {
       "category": "public.app-category.productivity",
       "target": "dmg",
       "icon": "assets/icon.icns"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
     },
     "files": [
       "build/**/*",

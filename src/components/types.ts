@@ -26,4 +26,3 @@ export interface ChecklistData {
   title?: string;
   sections: SectionData[];
 }
-

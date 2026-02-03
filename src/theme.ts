@@ -11,24 +11,24 @@ export interface Theme {
     sectionBg: string;
     hoverBg: string;
     activeBg: string;
-    
+
     // Text
     textPrimary: string;
     textSecondary: string;
     textMuted: string;
     textCompleted: string;
     activeText: string;
-    
+
     // Borders
     border: string;
     borderLight: string;
     activeBorder: string;
-    
+
     // Accents
     accent: string;
     accentHover: string;
     checkmark: string;
-    
+
     // Buttons
     buttonBg: string;
     buttonHoverBg: string;

@@ -59,7 +59,9 @@ const ChecklistItem: React.FC<ChecklistItemProps> = ({ item, depth = 0, onToggle
           cursor: 'pointer',
           opacity: item.isCompleted ? 0.6 : 1,
           transition: 'background-color 0.15s, opacity 0.15s',
-          borderLeft: item.isActive ? `3px solid ${theme.colors.activeBorder}` : '3px solid transparent',
+          borderLeft: item.isActive
+            ? `3px solid ${theme.colors.activeBorder}`
+            : '3px solid transparent',
           backgroundColor: item.isActive ? theme.colors.activeBg : 'transparent',
         }}
       >
