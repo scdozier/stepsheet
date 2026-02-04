@@ -165,7 +165,8 @@ const convertParsedToChecklistData = (parsed: ParsedMarkdown): ChecklistData => 
       text: item.text,
       isCompleted: item.checked,
       isActive: false,
-      images: item.images,
+      image: item.image,
+      notes: item.notes, // Include presenter notes from HTML comments
       children: item.children
         ? convertItems(item.children, sectionIndex, `${prefix}-${itemIndex}`)
         : undefined,
@@ -272,19 +273,28 @@ const App: React.FC = () => {
         const flatItems = flattenItems(prev);
         // Find next unchecked item starting from current position
         let nextIndex = currentItemIndex + 1;
+        let foundItem: ChecklistItemData | null = null;
         while (nextIndex < flatItems.length) {
           if (!flatItems[nextIndex].isCompleted) {
+            foundItem = flatItems[nextIndex];
             setCurrentItemIndex(nextIndex);
-            return prev;
+            break;
           }
           nextIndex++;
         }
-        // Wrap around to beginning
-        for (let i = 0; i < currentItemIndex; i++) {
-          if (!flatItems[i].isCompleted) {
-            setCurrentItemIndex(i);
-            return prev;
+        // Wrap around to beginning if not found
+        if (!foundItem) {
+          for (let i = 0; i < currentItemIndex; i++) {
+            if (!flatItems[i].isCompleted) {
+              foundItem = flatItems[i];
+              setCurrentItemIndex(i);
+              break;
+            }
           }
+        }
+        // Show notification if the item has notes
+        if (foundItem?.notes) {
+          window.electronAPI?.showNotification?.(foundItem.notes);
         }
         return prev;
       });
@@ -526,8 +536,8 @@ const App: React.FC = () => {
           transition: 'background-color 0.3s, border-color 0.3s',
         }}
       >
-        {/* Left side: Close button */}
-        <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '12px' }}>
+        {/* Left side: Traffic light buttons (Close, Minimize) */}
+        <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '12px', gap: '8px' }}>
           <button
             onClick={() => window.electronAPI?.closeWindow?.()}
             style={{
@@ -542,6 +552,21 @@ const App: React.FC = () => {
               padding: 0,
             }}
             title="Close"
+          />
+          <button
+            onClick={() => window.electronAPI?.setSizeMode?.('minimized')}
+            style={{
+              // @ts-expect-error - WebkitAppRegion is a valid CSS property for Electron
+              WebkitAppRegion: 'no-drag',
+              width: '12px',
+              height: '12px',
+              borderRadius: '50%',
+              backgroundColor: '#ffbd2e',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 0,
+            }}
+            title="Minimize"
           />
         </div>
 

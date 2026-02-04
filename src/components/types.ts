@@ -13,6 +13,7 @@ export interface ChecklistItemData {
   isActive?: boolean;
   children?: ChecklistItemData[];
   image?: ImageData; // Optional inline image
+  notes?: string; // Hidden presenter notes from HTML comments
 }
 
 export interface SectionData {

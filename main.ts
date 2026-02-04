@@ -8,6 +8,7 @@ import {
   Tray,
   Menu,
   nativeImage,
+  Notification,
 } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -26,6 +27,17 @@ let mainWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
 let isClickThrough = false;
 let isWindowVisible = true;
+
+// Window size modes
+type WindowSizeMode = 'full' | 'compact' | 'minimized';
+let currentSizeMode: WindowSizeMode = 'full';
+
+// Size presets for each mode
+const SIZE_PRESETS = {
+  full: { width: 400, height: 600 },
+  compact: { width: 400, height: 300 },
+  minimized: { width: 200, height: 50 },
+};
 
 // Window state persistence
 interface WindowState {
@@ -124,6 +136,27 @@ function createWindow(): void {
   });
 }
 
+// Set window size mode
+function setWindowSizeMode(mode: WindowSizeMode): void {
+  if (!mainWindow) return;
+
+  currentSizeMode = mode;
+  const preset = SIZE_PRESETS[mode];
+  const bounds = mainWindow.getBounds();
+
+  // Resize from current position
+  mainWindow.setBounds({
+    x: bounds.x,
+    y: bounds.y,
+    width: preset.width,
+    height: preset.height,
+  });
+
+  // Notify renderer of size mode change
+  mainWindow.webContents.send('window:sizeModeChanged', mode);
+  updateTrayMenu();
+}
+
 function createTray(): void {
   // Use Template image for macOS dark/light mode support
   const iconPath = path.join(__dirname, '..', 'assets', 'iconTemplate.png');
@@ -185,6 +218,24 @@ function updateTrayMenu(): void {
     },
     { type: 'separator' },
     {
+      label: 'Window Size',
+      submenu: [
+        {
+          label: currentSizeMode === 'full' ? '● Full' : 'Full',
+          click: () => setWindowSizeMode('full'),
+        },
+        {
+          label: currentSizeMode === 'compact' ? '● Compact' : 'Compact',
+          click: () => setWindowSizeMode('compact'),
+        },
+        {
+          label: currentSizeMode === 'minimized' ? '● Minimized' : 'Minimized',
+          click: () => setWindowSizeMode('minimized'),
+        },
+      ],
+    },
+    { type: 'separator' },
+    {
       label: 'Reset Checklist',
       click: async () => {
         try {
@@ -233,6 +284,27 @@ ipcMain.on('window:hide', () => {
 
 ipcMain.on('window:show', () => {
   mainWindow?.show();
+});
+
+// IPC handler for window size mode
+ipcMain.on('window:setSizeMode', (_event, mode: WindowSizeMode) => {
+  setWindowSizeMode(mode);
+});
+
+ipcMain.handle('window:getSizeMode', () => {
+  return currentSizeMode;
+});
+
+// IPC handler for showing notifications
+ipcMain.on('notification:show', (_event, message: string) => {
+  if (Notification.isSupported()) {
+    const notification = new Notification({
+      title: 'StepSheet Note',
+      body: message,
+      silent: true, // Don't play a sound
+    });
+    notification.show();
+  }
 });
 
 // IPC handler for opening file dialog

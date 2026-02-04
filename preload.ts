@@ -34,9 +34,17 @@ contextBridge.exposeInMainWorld('electronAPI', {
   closeWindow: () => ipcRenderer.send('window:close'),
   showWindow: () => ipcRenderer.send('window:show'),
 
+  // Window size mode operations
+  setSizeMode: (mode: 'full' | 'compact' | 'minimized') =>
+    ipcRenderer.send('window:setSizeMode', mode),
+  getSizeMode: () => ipcRenderer.invoke('window:getSizeMode'),
+
   // Click-through toggle (for overlay mode)
   setClickThrough: (enable: boolean) => ipcRenderer.send('window:setClickThrough', enable),
   getClickThrough: () => ipcRenderer.invoke('window:getClickThrough'),
+
+  // Notifications
+  showNotification: (message: string) => ipcRenderer.send('notification:show', message),
 
   // Event listeners
   onFileSelected: (callback: (filePath: string) => void) => {
@@ -64,6 +72,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onStateReset: (callback: () => void) => {
     ipcRenderer.on('state:reset', () => callback());
   },
+  onSizeModeChanged: (callback: (mode: 'full' | 'compact' | 'minimized') => void) => {
+    ipcRenderer.on('window:sizeModeChanged', (_event, mode) => callback(mode));
+  },
 });
 
 // State type for renderer process
@@ -77,6 +88,9 @@ interface AppStateData {
   settings: AppSettingsData;
   lastUpdated: string;
 }
+
+// Window size mode type
+type WindowSizeMode = 'full' | 'compact' | 'minimized';
 
 // Type declaration for the exposed API
 declare global {
@@ -92,8 +106,11 @@ declare global {
       hideWindow: () => void;
       closeWindow: () => void;
       showWindow: () => void;
+      setSizeMode: (mode: WindowSizeMode) => void;
+      getSizeMode: () => Promise<WindowSizeMode>;
       setClickThrough: (enable: boolean) => void;
       getClickThrough: () => Promise<boolean>;
+      showNotification: (message: string) => void;
       onFileSelected: (callback: (filePath: string) => void) => void;
       onToggleVisibility: (callback: () => void) => void;
       onNextItem: (callback: () => void) => void;
@@ -101,6 +118,7 @@ declare global {
       onReload: (callback: () => void) => void;
       onClickThroughChanged: (callback: (enabled: boolean) => void) => void;
       onStateReset: (callback: () => void) => void;
+      onSizeModeChanged: (callback: (mode: WindowSizeMode) => void) => void;
     };
   }
 }
