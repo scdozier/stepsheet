@@ -183,6 +183,9 @@ const convertParsedToChecklistData = (parsed: ParsedMarkdown): ChecklistData => 
   };
 };
 
+// Window size mode type
+type WindowSizeMode = 'full' | 'compact' | 'minimized';
+
 const App: React.FC = () => {
   const { theme, themeMode, toggleTheme } = useTheme();
   const [checklistData, setChecklistData] = useState<ChecklistData>(emptyChecklist);
@@ -191,6 +194,7 @@ const App: React.FC = () => {
   const [isStateLoaded, setIsStateLoaded] = useState(false);
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [showSettings, setShowSettings] = useState(false);
+  const [sizeMode, setSizeMode] = useState<WindowSizeMode>('full');
   const persistedTasksRef = useRef<TaskStateMap>({});
 
   // Load persisted state on app start
@@ -264,6 +268,13 @@ const App: React.FC = () => {
     // since setChecklistData is called inside this effect
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentItemIndex, settings.highlightCurrentStep]);
+
+  // Listen for size mode changes from menu bar
+  useEffect(() => {
+    window.electronAPI?.onSizeModeChanged?.((mode: WindowSizeMode) => {
+      setSizeMode(mode);
+    });
+  }, []);
 
   // Register keyboard shortcut handlers
   useEffect(() => {
@@ -567,6 +578,27 @@ const App: React.FC = () => {
               padding: 0,
             }}
             title="Minimize"
+          />
+          <button
+            onClick={() => {
+              const nextMode: WindowSizeMode =
+                sizeMode === 'full' ? 'compact' :
+                sizeMode === 'compact' ? 'minimized' : 'full';
+              window.electronAPI?.setSizeMode?.(nextMode);
+              setSizeMode(nextMode);
+            }}
+            style={{
+              // @ts-expect-error - WebkitAppRegion is a valid CSS property for Electron
+              WebkitAppRegion: 'no-drag',
+              width: '12px',
+              height: '12px',
+              borderRadius: '50%',
+              backgroundColor: '#00ca4e',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 0,
+            }}
+            title={`Cycle Size (${sizeMode === 'full' ? 'Full → Compact' : sizeMode === 'compact' ? 'Compact → Minimized' : 'Minimized → Full'})`}
           />
         </div>
 
