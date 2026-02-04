@@ -21,12 +21,14 @@ interface AppSettings {
   highlightCurrentStep: boolean;
   fileLibrary: FileLibraryEntry[];
   textScale: number;
+  lastOpenedFile?: string; // Path to last opened markdown file
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
   highlightCurrentStep: true,
   fileLibrary: [],
   textScale: 1.0,
+  lastOpenedFile: undefined,
 };
 
 // Text scale constraints
@@ -231,6 +233,22 @@ const App: React.FC = () => {
             ...prev,
             ...savedSettings,
           }));
+          // Auto-load last opened file if it exists
+          if (savedSettings.lastOpenedFile) {
+            try {
+              const content = await window.electronAPI?.readFile(savedSettings.lastOpenedFile);
+              if (content) {
+                const parsed = parseMarkdown(content);
+                const converted = convertParsedToChecklistData(parsed);
+                const withPersistedState = applyPersistedState(converted, state?.tasks || {});
+                setChecklistData(withPersistedState);
+                setLoadedFilePath(savedSettings.lastOpenedFile);
+              }
+            } catch (fileError) {
+              console.error('Failed to load last opened file:', fileError);
+              // File may have been moved/deleted, clear the setting
+            }
+          }
         }
       } catch (error) {
         console.error('Failed to load persisted state:', error);
@@ -263,6 +281,8 @@ const App: React.FC = () => {
           setChecklistData(withPersistedState);
           setLoadedFilePath(filePath);
           setCurrentItemIndex(-1);
+          // Save last opened file to settings
+          setSettings((prev) => ({ ...prev, lastOpenedFile: filePath }));
         }
       } catch (error) {
         console.error('Failed to load markdown file:', error);
