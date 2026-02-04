@@ -273,9 +273,7 @@ ipcMain.handle('window:getClickThrough', () => {
 
 // IPC handlers for window visibility
 ipcMain.on('window:close', () => {
-  if (mainWindow) {
-    mainWindow.close();
-  }
+  app.quit();
 });
 
 ipcMain.on('window:hide', () => {

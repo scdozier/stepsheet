@@ -18,6 +18,7 @@ export interface AppSettings {
   highlightCurrentStep: boolean;
   fileLibrary: FileLibraryEntry[];
   textScale: number;
+  lastOpenedFile?: string; // Path to last opened markdown file
 }
 
 export interface AppState {
