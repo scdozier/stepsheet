@@ -153,6 +153,24 @@ const setActiveItem = (
   };
 };
 
+// Helper to uncheck all items
+const uncheckAllItems = (data: ChecklistData): ChecklistData => {
+  const updateItems = (items: ChecklistItemData[]): ChecklistItemData[] => {
+    return items.map((item) => ({
+      ...item,
+      isCompleted: false,
+      children: item.children ? updateItems(item.children) : undefined,
+    }));
+  };
+  return {
+    ...data,
+    sections: data.sections.map((section) => ({
+      ...section,
+      items: updateItems(section.items),
+    })),
+  };
+};
+
 // Convert parsed markdown to ChecklistData format
 const convertParsedToChecklistData = (parsed: ParsedMarkdown): ChecklistData => {
   const convertItems = (
@@ -629,6 +647,31 @@ const App: React.FC = () => {
             title="Settings"
           >
             ⚙️
+          </button>
+
+          {/* Reset checklist button */}
+          <button
+            onClick={async () => {
+              setChecklistData((prev) => uncheckAllItems(prev));
+              setCurrentItemIndex(0);
+              persistedTasksRef.current = {};
+              await window.electronAPI?.resetState?.();
+            }}
+            style={{
+              // @ts-expect-error - WebkitAppRegion is a valid CSS property for Electron
+              WebkitAppRegion: 'no-drag',
+              padding: '4px 8px',
+              fontSize: '0.6875em',
+              backgroundColor: theme.colors.buttonBg,
+              color: theme.colors.textPrimary,
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s, color 0.2s',
+            }}
+            title="Reset all steps to unchecked"
+          >
+            🔄
           </button>
 
           {/* Theme toggle button */}
